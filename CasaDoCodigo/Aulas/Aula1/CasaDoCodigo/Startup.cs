@@ -5,6 +5,7 @@ using System.Threading.Tasks;
 using CasaDoCodigo.Repositories;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
+using Microsoft.AspNetCore.Http;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -24,6 +25,9 @@ namespace CasaDoCodigo
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddMvc();
+            
+            services.AddDistributedMemoryCache();
+            services.AddSession();
 
             string connectionString = Configuration.GetConnectionString("Default");
 
@@ -36,6 +40,9 @@ namespace CasaDoCodigo
             services.AddTransient<IPedidoRepository,PedidoRepository>();
             services.AddTransient<IItemPedidoRepository,ItemPedidoRepository>();
             services.AddTransient<ICadastroRepository, CadastroRepository>();
+
+            //não vem mais carregado por default no core
+            services.AddTransient<IHttpContextAccessor, HttpContextAccessor>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
@@ -52,6 +59,8 @@ namespace CasaDoCodigo
             }
 
             app.UseStaticFiles();
+
+            app.UseSession();
 
             app.UseMvc(routes =>
             {
